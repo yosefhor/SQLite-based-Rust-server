@@ -7,7 +7,7 @@ mod models;
 mod services;
 
 use crate::error::{AppError, AppResult};
-use sqlx::SqlitePool;
+use sqlx::{SqlitePool, any};
 use std::{env, net::SocketAddr};
 use tracing::{error, info};
 
@@ -26,16 +26,9 @@ async fn main() -> AppResult<()> {
 
     let config = config::Config::load();
 
-    let pool = SqlitePool::connect(&config.database_url)
-        .await
-        .expect("DB connection failed");
+    let db_pool = db::init::init_db(&config.database_url).await.unwrap();
 
-    sqlx::migrate!("./migrations")
-        .run(&pool)
-        .await
-        .expect("Migration failed");
-
-    let state = AppState { db: pool };
+    let state = AppState { db: db_pool };
 
     let app = api::router::create_router(state);
 
