@@ -1,4 +1,4 @@
 /target
-/logs
+# /logs
 .env
 .env.*
