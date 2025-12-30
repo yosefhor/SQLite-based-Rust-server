@@ -1,14 +1,15 @@
 mod api;
 mod config;
 mod db;
+mod error;
+mod logging;
 mod models;
 mod services;
 
-use std::net::SocketAddr;
-use config::Config;
+use crate::error::{AppError, AppResult};
 use sqlx::SqlitePool;
+use std::{env, net::SocketAddr};
 use tracing::{error, info};
-use tracing_subscriber::fmt::init;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -16,10 +17,14 @@ pub struct AppState {
 }
 
 #[tokio::main]
-async fn main() {
-    init();
+async fn main() -> AppResult<()> {
+    dotenvy::dotenv().ok();
+    let log_level = env::var("RUST_LOG").unwrap_or_else(|_| "debug".to_string());
+    let _log_guard =
+        logging::init_logging(&log_level).map_err(|e| AppError::Internal { source: e.into() })?;
+    info!("Logging initialized at {} level", log_level);
 
-    let config = Config::load();
+    let config = config::Config::load();
 
     let pool = SqlitePool::connect(&config.database_url)
         .await
@@ -41,15 +46,16 @@ async fn main() {
             "0.0.0.0:3000".parse().unwrap()
         });
 
-    let listener = match tokio::net::TcpListener::bind(addr).await {
-        Ok(l) => l,
-        Err(e) => {
+    let listener = tokio::net::TcpListener::bind(addr)
+        .await
+        .map_err(|e| {
             error!(error = %e, "Failed to bind server");
-            return;
-        }
-    };
+            e
+        })
+        .unwrap();
 
     info!("Server running on {}", addr);
 
     axum::serve(listener, app).await.unwrap();
+    Ok(())
 }
