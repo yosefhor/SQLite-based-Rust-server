@@ -2,7 +2,7 @@ pub fn init_logging(
     log_level: &str,
 ) -> anyhow::Result<tracing_appender::non_blocking::WorkerGuard> {
     use tracing_appender::rolling;
-    use tracing_subscriber::{prelude::*, EnvFilter};
+    use tracing_subscriber::{EnvFilter, prelude::*};
 
     let file_appender = rolling::daily("logs", "app.log");
     let (non_blocking, guard) = tracing_appender::non_blocking(file_appender);
@@ -15,7 +15,6 @@ pub fn init_logging(
     let console_layer = tracing_subscriber::fmt::layer().pretty().with_target(false);
 
     let filter = EnvFilter::new(log_level);
-
     tracing_subscriber::registry()
         .with(filter)
         .with(console_layer)

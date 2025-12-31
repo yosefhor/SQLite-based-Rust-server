@@ -4,12 +4,13 @@ mod db;
 mod error;
 mod logging;
 mod models;
+mod server;
 mod services;
 
-use crate::error::{AppError, AppResult};
-use sqlx::{SqlitePool, any};
+use anyhow::Context;
+use sqlx::SqlitePool;
 use std::{env, net::SocketAddr};
-use tracing::{error, info};
+use tracing::info;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -17,38 +18,30 @@ pub struct AppState {
 }
 
 #[tokio::main]
-async fn main() -> AppResult<()> {
+async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
+
     let log_level = env::var("RUST_LOG").unwrap_or_else(|_| "debug".to_string());
-    let _log_guard =
-        logging::init_logging(&log_level).map_err(|e| AppError::Internal { source: e.into() })?;
+    let _log_guard = logging::init_logging(&log_level).context("failed to init logging")?;
+
     info!("Logging initialized at {} level", log_level);
 
     let config = config::Config::load();
 
-    let db_pool = db::init::init_db(&config.database_url).await.unwrap();
+    let db_pool = db::init::init_db(&config.database_url)
+        .await
+        .context("failed to init database")?;
 
     let state = AppState { db: db_pool };
-
     let app = api::router::create_router(state);
 
-    let addr: SocketAddr = format!("0.0.0.0:{}", config.server_port)
-        .parse()
-        .unwrap_or_else(|_| {
-            error!("Invalid port {}, falling back to 3000", config.server_port);
-            "0.0.0.0:3000".parse().unwrap()
-        });
+    let addr = SocketAddr::from(([0, 0, 0, 0], config.server_port));
 
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .map_err(|e| {
-            error!(error = %e, "Failed to bind server");
-            e
-        })
-        .unwrap();
+    let listener = server::bind_with_fallback(addr).await?;
 
-    info!("Server running on {}", addr);
+    info!("Server listening on port {}", listener.local_addr()?.port());
 
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(listener, app).await?;
+
     Ok(())
 }
