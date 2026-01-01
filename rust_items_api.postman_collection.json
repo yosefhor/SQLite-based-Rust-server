@@ -84,7 +84,7 @@
               "});",
               "",
               "pm.test(\"Error message returned\", function () {",
-              "    pm.expect(pm.response.text()).to.include(\"Invalid\");",
+              "    pm.expect(pm.response.text()).to.include(\"name cannot be empty\");",
               "});"
             ]
           }
