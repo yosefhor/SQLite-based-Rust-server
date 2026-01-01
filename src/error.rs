@@ -1,5 +1,7 @@
 use axum::{http::StatusCode, response::IntoResponse};
 
+use crate::services::item_service::ServiceError;
+
 pub type AppResult<T> = Result<T, AppError>;
 
 #[derive(thiserror::Error, Debug)]
@@ -15,6 +17,18 @@ pub enum AppError {
         #[from]
         source: anyhow::Error,
     },
+}
+
+impl From<ServiceError> for AppError {
+    fn from(err: ServiceError) -> Self {
+        match err {
+            ServiceError::InvalidName =>
+                AppError::BadRequest("Invalid name".into()),
+
+            ServiceError::Database(e) =>
+                AppError::Internal { source: e.into() },
+        }
+    }
 }
 
 impl IntoResponse for AppError {

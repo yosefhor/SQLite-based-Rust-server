@@ -1,7 +1,8 @@
+use crate::models::item::Item;
+use crate::services::item_service;
+use crate::{AppState, error::AppResult};
 use axum::{Json, extract::State};
 use serde::Deserialize;
-use crate::services::item_service;
-use crate::AppState;
 
 #[derive(Deserialize)]
 pub struct CreateItemRequest {
@@ -11,20 +12,12 @@ pub struct CreateItemRequest {
 pub async fn create_item(
     State(state): State<AppState>,
     Json(payload): Json<CreateItemRequest>,
-) -> Json<serde_json::Value> {
-
-    match item_service::create_item(&state.db, payload.name).await {
-        Ok(item) => Json(serde_json::json!(item)),
-        Err(_) => Json(serde_json::json!({ "error": "invalid input" })),
-    }
+) -> AppResult<Json<Item>> {
+    let item = item_service::create_item(&state.db, payload.name).await?;
+    Ok(Json(item))
 }
 
-pub async fn list_items(
-    State(state): State<AppState>,
-) -> Json<serde_json::Value> {
-
-    match item_service::get_items(&state.db).await {
-        Ok(items) => Json(serde_json::json!(items)),
-        Err(_) => Json(serde_json::json!({ "error": "db error" })),
-    }
+pub async fn list_items(State(state): State<AppState>) -> AppResult<Json<Vec<Item>>> {
+    let items = item_service::get_items(&state.db).await?;
+    Ok(Json(items))
 }
