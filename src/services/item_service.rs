@@ -8,12 +8,8 @@ pub enum ServiceError {
     Database(sqlx::Error),
 }
 
-pub async fn create_item(
-    pool: &SqlitePool,
-    name: String,
-) -> Result<Item, ServiceError> {
-
-    if name.trim().is_empty() {
+pub async fn create_item(pool: &SqlitePool, name: &str) -> Result<Item, ServiceError> {
+    if name.is_empty() {
         return Err(ServiceError::InvalidName);
     }
 
@@ -22,9 +18,7 @@ pub async fn create_item(
         .map_err(ServiceError::Database)
 }
 
-pub async fn get_items(
-    pool: &SqlitePool,
-) -> Result<Vec<Item>, ServiceError> {
+pub async fn get_items(pool: &SqlitePool) -> Result<Vec<Item>, ServiceError> {
     queries::list_items(pool)
         .await
         .map_err(ServiceError::Database)
