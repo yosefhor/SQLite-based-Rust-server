@@ -1,21 +1,15 @@
-mod api;
-mod config;
-mod db;
-mod error;
-mod logging;
-mod models;
-mod server;
-mod services;
-
 use anyhow::Context;
-use sqlx::SqlitePool;
 use std::{env, net::SocketAddr};
 use tracing::info;
 
-#[derive(Clone)]
-pub struct AppState {
-    pub db: SqlitePool,
-}
+use SQLite_based_Rust_server::{
+    api,
+    config,
+    db,
+    logging,
+    server,
+    AppState,
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

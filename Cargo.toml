@@ -1,5 +1,5 @@
 [package]
-name = "SQLite-based-Rust-server"
+name = "SQLite_based_Rust_server"
 version = "0.1.0"
 edition = "2024"
 
@@ -15,3 +15,6 @@ tokio = { version = "1", features = ["full"] }
 tracing = "0.1"
 tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
+
+[dev-dependencies]
+tower = "0.5.2"
