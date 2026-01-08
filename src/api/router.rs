@@ -9,7 +9,7 @@ use super::items;
 
 pub fn create_router(state: AppState) -> Router {
     let cors = CorsLayer::new()
-        .allow_origin(AllowOrigin::exact("http://localhost:3000".parse().unwrap())) // Vite default
+        .allow_origin(AllowOrigin::exact("http://localhost:3000".parse().unwrap()))
         .allow_methods([axum::http::Method::GET, axum::http::Method::POST])
         .allow_headers([axum::http::header::CONTENT_TYPE]);
     Router::new()
