@@ -1,21 +1,29 @@
 [package]
 name = "SQLite_based_Rust_server"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-anyhow = "1.0"
-axum = "0.7"
-dotenvy = "0.15.6"
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-sqlx = { version = "0.7", features = ["sqlite", "runtime-tokio", "macros", "migrate"] }
-thiserror = "1.0"
-tokio = { version = "1", features = ["full"] }
-tracing = "0.1"
-tracing-appender = "0.2.4"
-tracing-subscriber = { version = "0.3", features = ["json", "env-filter"] }
-tower-http = { version = "0.5", features = ["cors"] }
+anyhow = "=1.0.86"
+
+axum = "=0.7.5"
+
+dotenvy = "=0.15.7"
+
+serde = { version = "=1.0.197", features = ["derive"] }
+serde_json = "=1.0.115"
+
+sqlx = { version ="=0.7.3", features = ["sqlite", "runtime-tokio", "macros", "migrate"]}
+
+thiserror = "=1.0.58"
+
+tokio = { version = "=1.38.0", features = ["full"] }
+
+tracing = "=0.1.40"
+tracing-appender = "=0.2.3"
+tracing-subscriber = {version = "=0.3.18", features = ["json", "env-filter"]}
+
+tower-http = { version = "=0.5.1", features = ["cors"] }
 
 [dev-dependencies]
-tower = "0.5.2"
+tower = "=0.5.1"

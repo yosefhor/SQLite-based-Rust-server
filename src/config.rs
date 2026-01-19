@@ -21,8 +21,8 @@ impl Config {
             .ok()
             .and_then(|v| v.parse().ok())
             .unwrap_or_else(|| {
-                tracing::warn!("SERVER_PORT invalid or missing, using 3000");
-                3000
+                tracing::warn!("SERVER_PORT invalid or missing, using 8000");
+                8000
             });
 
         Self {
