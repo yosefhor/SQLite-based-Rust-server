@@ -13,8 +13,8 @@ impl Config {
         }
 
         let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| {
-            tracing::warn!("DATABASE_URL not set, using sqlite://items.db");
-            "sqlite://items.db".to_string()
+            tracing::warn!("DATABASE_URL not set, using sqlite://data/items.db");
+            "sqlite://data/items.db".to_string()
         });
 
         let server_port = env::var("SERVER_PORT")

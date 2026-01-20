@@ -2,4 +2,4 @@ target/
 logs/
 .env
 .env.*
-items.db
+data/
